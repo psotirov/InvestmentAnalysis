@@ -1,0 +1,154 @@
+﻿<common:LayoutAwarePage
+    x:Name="pageItemDetails"
+    x:Class="Investment_Analysis.Views.ItemDetails"
+    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Investment_Analysis.Views"
+    xmlns:common="using:Investment_Analysis.Common"
+    xmlns:vm="using:Investment_Analysis.ViewModels"    
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <vm:ItemDetailsViewModel x:Name="itemDetailsVM"/>
+    </Page.Resources>
+    <!--
+        This grid acts as a root panel for the page that defines two rows:
+        * Row 0 contains the back button and page title
+        * Row 1 contains the rest of the page layout
+    -->
+    <Grid Style="{StaticResource LayoutRootStyle}" DataContext="{Binding Source={StaticResource itemDetailsVM}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="140"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="leftMargin" Width="120"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Back button and page title -->
+        <Grid Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
+            <StackPanel Grid.Column="1">
+                <TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource PageHeaderTextStyle}"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Total" Padding="0 0 10 0" Style="{StaticResource PageSubheaderTextStyle}"/>
+                    <TextBlock x:Name="pageSubTitle" Text="Item" Style="{StaticResource PageSubheaderTextStyle}"/>
+                    <TextBlock Text="Details" Padding="10 0 0 0" Style="{StaticResource PageSubheaderTextStyle}"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+        
+        <!-- Item Details Page Content -->
+        <StackPanel Grid.Row="1" Grid.Column="1" x:Name="projectLabel" Margin="0 0 0 20" Orientation="Horizontal" HorizontalAlignment="Center" >
+            <TextBlock Padding="20 0" VerticalAlignment="Center" Text="Project Name:" Style="{StaticResource TitleTextStyle}"/>
+            <TextBlock Text="{Binding Path=ProjectName}" Style="{StaticResource TitleTextStyle}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Grid.Column="1" x:Name="projectTotal" Margin="0 0 0 20" Orientation="Horizontal" HorizontalAlignment="Center" >
+            <TextBlock VerticalAlignment="Center" Text="Total Value:" Style="{StaticResource TitleTextStyle}"/>
+            <TextBlock Text="{Binding Path=TotalValue}" Style="{StaticResource SubheaderTextStyle}" Margin="20 0"/>
+            <TextBlock VerticalAlignment="Center" Text="{Binding Path=MeasureUnit}" Style="{StaticResource TitleTextStyle}"/>
+        </StackPanel>
+
+        <Grid x:Name="itemsHeader" Grid.Row="3" Grid.Column="1" Margin="0 0 20 20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Add New Item" Command="{Binding AddNewItem}" CommandParameter="{Binding ElementName=itemsDetails, Path=SelectedIndex}"/>
+                <Button Content="Remove Selected Item" Command="{Binding RemoveSelectedItem}" CommandParameter="{Binding ElementName=itemsDetails, Path=SelectedIndex}"/>
+            </StackPanel>
+            <TextBlock HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}" Grid.Row="1" Text="Item Name"/>
+            <TextBlock HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}" Grid.Row="1" Grid.Column="1" Text="Measurement Unit"/>
+            <TextBlock HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}" Grid.Row="1" Grid.Column="2" Text="Value"/>
+            <TextBlock HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}" Grid.Row="1" Grid.Column="3" Text="Remark"/>
+        </Grid>
+
+        <ListView
+            x:Name="itemsDetails" 
+            Grid.Row="4" Grid.Column="1" 
+            ScrollViewer.VerticalScrollBarVisibility="Visible" 
+            ScrollViewer.VerticalScrollMode="Enabled" 
+            ItemsSource="{Binding Items}" 
+            Tag="{Binding}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Margin="5 0" Text="{Binding Path=Title, Mode=TwoWay}" />
+                        <TextBox Margin="5 0" Grid.Column="1" Text="{Binding Tag.MeasureUnit, ElementName=itemsDetails}" IsReadOnly="True"/>
+                        <TextBox Margin="5 0" Grid.Column="2" Text="{Binding Path=Value, Mode=TwoWay}" />
+                        <TextBox Margin="5 0" Grid.Column="3" Text="{Binding Path=Remark, Mode=TwoWay}" /> 
+                        </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- Visual states reflect the application's view state -->
+            <VisualStateGroup x:Name="ApplicationViewStates">
+                <VisualState x:Name="FullScreenLandscape"/>
+                <VisualState x:Name="Filled"/>
+
+                <!-- The entire page respects the narrower 100-pixel margin convention for portrait -->
+                <VisualState x:Name="FullScreenPortrait">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PortraitBackButtonStyle}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+
+                <!-- The back button and title have different styles when snapped -->
+                <VisualState x:Name="Snapped">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedBackButtonStyle}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedPageHeaderTextStyle}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="leftMargin" Storyboard.TargetProperty="Width">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="10"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="itemsHeader" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="itemsDetails" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </Grid>
+</common:LayoutAwarePage>
